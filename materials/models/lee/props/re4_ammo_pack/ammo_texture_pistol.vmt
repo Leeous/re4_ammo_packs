@@ -1,0 +1,5 @@
+"VertexlitGeneric"
+{
+	"$basetexture" "models/lee/props/re4_ammo_pack/ammo_texture_pistol"
+	"$surfaceprop2" "Wood_Box"
+}
