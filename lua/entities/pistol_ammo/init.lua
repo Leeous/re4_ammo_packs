@@ -1,25 +1,62 @@
-AddCSLuaFile( "shared.lua" )
-include('shared.lua')
+AddCSLuaFile()
+ENT.Type 			= "anim"
+ENT.Base 			= "base_gmodentity"
 
--- RE4 ammo pickup sound
+ENT.PrintName		= "Pistol Ammo"
+ENT.Author			= "Leeous"
+ENT.Contact			= "contact@leeous.com"
+ENT.Category		= "RE4 Ammo Packs"
+ENT.Spawnable		= true
+ENT.AdminOnly		= false
+
 local pickup_sound = Sound("ammo_pickup.wav")
 
-function ENT:Initialize()
-    self.Entity:SetModel("models/lee/props/re4_props/re4_ammo_pack_pistol.mdl")
-    self.Entity:PhysicsInit(SOLID_VPHYSICS)
-    self.Entity:SetMoveType(MOVETYPE_VPHYSICS)
-    self.Entity:SetSolid(SOLID_VPHYSICS)
-    self.Entity:DrawShadow(false)
-    self.Entity:SetCollisionGroup(COLLISION_GROUP_WEAPON)
-    self.Entity:DropToFloor()
-    local phys = self:GetPhysicsObject()
+function ENT:SpawnFunction(ply, trace)
+    if ( !trace.Hit ) then return end
+
+    local ent = ents.Create( "pistol_ammo" )
+    ent:SetPos( trace.HitPos + trace.HitNormal )
+    ent:Spawn()
+    ent:Activate()
     if CLIENT then
         phys:Wake()
     end
+    return ent
 end
 
-function ENT:Use( activator, caller )
+function ENT:Initialize()
+    self:SetModel("models/lee/props/re4_props/re4_ammo_pack_pistol.mdl")
+    self:PhysicsInit( SOLID_VPHYSICS )
+    self:SetMoveType( MOVETYPE_VPHYSICS )
+    self:SetSolid( SOLID_VPHYSICS )
+    self:DrawShadow(true)
+    self:DropToFloor()
+end
+
+function ENT:Use( ply, trace )
+    if (!ply:IsPlayer()) then
+        return end
     self:EmitSound(pickup_sound)
-    caller:GiveAmmo(15, "Pistol", false)
+    ply:GiveAmmo(15, "Pistol", false)
     self:Remove();
+end
+
+function ENT:Touch(ply)
+    if self.givenAmmo == true then return end
+    if not ply:IsPlayer() then return end
+    self:EmitSound(pickup_sound)
+    ply:GiveAmmo(15, "Pistol", false)
+    self:Remove()
+end
+
+-- Hack to force ammo to physwake
+function ENT:Think()
+    if not self.first_think then
+        self:PhysWake()
+        self.first_think = true
+
+        -- Immediately unhook the Think, save cycles. The first_think thing is
+        -- just there in case it still Thinks somehow in the future.
+        self.Think = nil
+    end
 end
