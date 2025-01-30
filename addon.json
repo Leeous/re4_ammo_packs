@@ -1,1 +1,6 @@
-{"title":"Resident Evil 4: Ammo Packs","type":"serverContent","tags":["roleplay","realism"],"ignore":[""]}
+{
+	"title": "Resident Evil 4: Ammo Packs",
+	"type": "serverContent",
+	"tags": ["roleplay", "realism"],
+	"ignore": ["README.md", ".git/"]
+}

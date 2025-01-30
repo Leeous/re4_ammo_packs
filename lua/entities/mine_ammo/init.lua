@@ -1,13 +1,5 @@
-AddCSLuaFile()
-ENT.Type 			= "anim"
-ENT.Base 			= "base_gmodentity"
-
-ENT.PrintName		= "Mine Ammo"
-ENT.Author			= "Leeous"
-ENT.Contact			= "contact@leeous.com"
-ENT.Category		= "RE4 Ammo Packs"
-ENT.Spawnable		= true
-ENT.AdminOnly		= false
+include("shared.lua")
+AddCSLuaFile("shared.lua")
 
 local pickup_sound = Sound("ammo_pickup.wav")
 
@@ -31,13 +23,17 @@ function ENT:Initialize()
     self:SetSolid( SOLID_VPHYSICS )
     self:DrawShadow(true)
     self:DropToFloor()
+
+    local physObj = self:GetPhysicsObject()
+    if not physObj:IsValid() then return end
+    physObj:Wake()
 end
 
 function ENT:Use( ply, trace )
     if (!ply:IsPlayer()) then
         return end
     self:EmitSound(pickup_sound)
-    ply:GiveAmmo(3, "slam", false)
+    ply:GiveAmmo(GetConVar("re4_mine_ammo_amount"):GetInt(), GetConVar("re4_mine_ammo_type"):GetString(), not GetConVar("re4_show_ammo_pickup"):GetBool())
     self:Remove();
 end
 
@@ -45,7 +41,7 @@ function ENT:Touch(ply)
     if self.givenAmmo == true then return end
     if not ply:IsPlayer() then return end
     self:EmitSound(pickup_sound)
-    ply:GiveAmmo(3, "slam", false)
+    ply:GiveAmmo(GetConVar("re4_mine_ammo_amount"):GetInt(), GetConVar("re4_mine_ammo_type"):GetString(), not GetConVar("re4_show_ammo_pickup"):GetBool())
     self:Remove()
 end
 
